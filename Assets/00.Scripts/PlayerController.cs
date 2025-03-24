@@ -1,5 +1,7 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Security.Cryptography;
 using UnityEngine;
 
 public class PlayerController : MonoBehaviour
@@ -8,8 +10,10 @@ public class PlayerController : MonoBehaviour
     private GameObject focalPoint;
 
     public GameObject powerupIndicator;
+    public GameObject mineIndicator;
 
     public GameObject minePrefab;
+    public bool isMineExist;
 
 
     public float speed = 5.0f;
@@ -18,11 +22,23 @@ public class PlayerController : MonoBehaviour
 
     private float powerupStrength = 15.0f;
 
+    private void OnEnable()
+    {
+        Mine.OnMineReady += MineIsReady;   
+    }
+
+    private void OnDisable()
+    {
+        Mine.OnMineReady -= MineIsReady;
+    }
+
+
     // Start is called before the first frame update
     void Start()
     {
         playerRb = GetComponent<Rigidbody>();
         focalPoint = GameObject.Find("Focal Point");
+        MineIsReady();
     }
 
     // Update is called once per frame
@@ -33,10 +49,10 @@ public class PlayerController : MonoBehaviour
 
         powerupIndicator.transform.position = transform.position + new Vector3(0, -0.5f, 0);
 
-        if(Input.GetKeyDown(KeyCode.Space))
+        if(Input.GetKeyDown(KeyCode.Space) && !isMineExist)
         {
-            GameObject obj = Instantiate(minePrefab, transform);
-            obj.transform.SetParent(null);
+            GameObject obj = Instantiate(minePrefab, transform.position, minePrefab.transform.rotation);
+            isMineExist = true;
         }
 
     }
@@ -71,4 +87,9 @@ public class PlayerController : MonoBehaviour
         powerupIndicator.gameObject.SetActive(false);
     }
 
+    public void MineIsReady()
+    {
+        isMineExist = false;
+        mineIndicator.SetActive(true);
+    }
 }

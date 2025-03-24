@@ -7,6 +7,17 @@ public class Enemy : MonoBehaviour
     private Rigidbody enemyRb;
     private GameObject player;
     [SerializeField] bool isTrapped;
+    [SerializeField] GameObject fierIndicator;
+
+    private void OnEnable()
+    {
+        Mine.OnMineReady += FireOn;
+    }
+
+    private void OnDisable()
+    {
+        Mine.OnMineReady -= FireOn;
+    }
 
     private void Start()
     {
@@ -35,7 +46,10 @@ public class Enemy : MonoBehaviour
     {
         if(other.CompareTag("MINE"))
         {
-            StartCoroutine(nameof(StopMove));
+            enemyRb.Sleep();
+            isTrapped = true;
+            other.GetComponent<Mine>().AddCatch();
+            //StartCoroutine(nameof(StopMove));
         }
     }
 
@@ -47,5 +61,17 @@ public class Enemy : MonoBehaviour
         enemyRb.Sleep();
         yield return new WaitForSeconds(3f);
         isTrapped = false;
+    }
+
+    private void FireOn()
+    {
+        fierIndicator.SetActive(true);
+        StartCoroutine("FireOff");
+    }
+
+    IEnumerator FireOff()
+    {
+        yield return new WaitForSeconds(1.5f);
+        fierIndicator.SetActive(false);
     }
 }
